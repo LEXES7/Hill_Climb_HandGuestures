@@ -27,7 +27,7 @@ Control Hill Climb Racing using hand gestures detected through your webcam! No n
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/Hill_Climb_HandGuestures.git
+   git clone 
    cd Hill_Climb_HandGuestures
    ```
 
