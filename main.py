@@ -7,7 +7,6 @@ print("Starting Hand Gesture Detection...")
 print("OpenCV version:", cv2.__version__)
 print("Press 'q' to quit")
 
-# Initialize keyboard controller
 keyboard = Controller()
 
 def initialize_camera():
@@ -18,7 +17,6 @@ def initialize_camera():
         for camera_id in [0, 1, 2]:
             video = cv2.VideoCapture(camera_id)
             if video.isOpened():
-                # Test if we can actually read a frame
                 ret, test_frame = video.read()
                 if ret and test_frame is not None:
                     print(f"Camera {camera_id} working! Frame shape: {test_frame.shape}")
@@ -30,7 +28,6 @@ def initialize_camera():
     
     return None, None
 
-# Initialize camera with retry logic
 video, camera_id = initialize_camera()
 if video is None:
     print("❌ Could not initialize any camera after 3 attempts!")
@@ -42,16 +39,14 @@ if video is None:
 
 print(f"✅ Using camera {camera_id}")
 
-# Initialize MediaPipe
 mp_draw = mp.solutions.drawing_utils
 mp_hand = mp.solutions.hands
 
-# Finger tip IDs for hand landmarks
 tipIds = [4, 8, 12, 16, 20]
 
 frame_count = 0
 current_action = None
-failed_reads = 0  # Track consecutive failed reads
+failed_reads = 0  
 
 print("\n=== HILL CLIMB RACING CONTROLS ===")
 print("✊ Fist (0 fingers) = BRAKE")
@@ -87,14 +82,11 @@ with mp_hand.Hands(min_detection_confidence=0.7,
         failed_reads = 0  # Reset on successful read
         frame_count += 1
         
-        # Reduce console spam - only print every 60 frames
         if frame_count % 60 == 0:
             print(f"✅ Frame {frame_count} - System running smoothly")
             
-        # Flip image horizontally for mirror effect
         image = cv2.flip(image, 1)
         
-        # Convert to RGB for MediaPipe
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image_rgb.flags.writeable = False
         results = hands.process(image_rgb)
@@ -115,13 +107,11 @@ with mp_hand.Hands(min_detection_confidence=0.7,
         action = "NONE"
         
         if len(lmList) != 0:
-            # Thumb (flipped)
             if lmList[tipIds[0]][1] < lmList[tipIds[0] - 1][1]:
                 fingers.append(1)
             else:
                 fingers.append(0)
             
-            # Other fingers
             for id in range(1, 5):
                 if lmList[tipIds[id]][2] < lmList[tipIds[id] - 2][2]:
                     fingers.append(1)
@@ -130,11 +120,9 @@ with mp_hand.Hands(min_detection_confidence=0.7,
             
             total = fingers.count(1)
             
-            # Display finger count
             cv2.putText(image, f"Fingers: {total}", (10, 50), 
                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 3)
             
-            # Game Controls
             if total == 0:  # Fist = BRAKE
                 action = "BRAKE"
                 cv2.rectangle(image, (20, 300), (270, 425), (0, 0, 255), cv2.FILLED)
@@ -171,7 +159,6 @@ with mp_hand.Hands(min_detection_confidence=0.7,
             else:
                 action = "NONE"
         
-        # Release all keys if no gesture detected
         if action == "NONE" and current_action is not None:
             keyboard.release(Key.left)
             keyboard.release(Key.right) 
@@ -180,14 +167,12 @@ with mp_hand.Hands(min_detection_confidence=0.7,
             current_action = None
             print("🔄 All controls released")
         
-        # Show current action
         cv2.putText(image, f"Action: {action}", (10, 100), 
                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
         
         cv2.imshow('Hand Tracking - Press Q to quit', image)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            # Release all keys before quitting
             keyboard.release(Key.left)
             keyboard.release(Key.right)
             keyboard.release(Key.up)
