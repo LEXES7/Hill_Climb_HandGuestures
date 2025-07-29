@@ -178,7 +178,7 @@ We welcome contributions! Here's how:
 ### Development Setup
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/Hill_Climb_HandGuestures.git
+git clone 
 
 # Install development dependencies
 pip install -r requirements-dev.txt
